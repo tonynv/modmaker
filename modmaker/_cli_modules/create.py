@@ -113,6 +113,15 @@ class Create:
             LOG.error(f"Error copying template: {str(e)}")
             return False
             
+    def _create_license_file(self, project_dir):
+        """
+        Create a license file with Apache 2.0 license
+        
+        Args:
+            project_dir (str): Project directory
+        """
+        pass  # License file is now handled through the template system
+    
     def _create_cli_structure(self, project_dir, project_name):
         """
         Create CLI structure files
