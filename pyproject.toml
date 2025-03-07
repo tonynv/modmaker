@@ -25,5 +25,7 @@ dependencies = [
 modmaker = "modmaker._cli:main"
 
 [tool.setuptools]
-packages = ["modmaker"]
 include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["modmaker", "modmaker.*"]
