@@ -64,15 +64,38 @@ jobs:
           if [ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]; then
             echo "Version unchanged, bumping patch version..."
             
-            # Bump patch version
-            pip install bump2version
-            bump2version patch
+            # Create .bumpversion.cfg if it doesn't exist
+            if [ ! -f .bumpversion.cfg ]; then
+                cat > .bumpversion.cfg << 'EOF'
+[bumpversion]
+current_version = $CURRENT_VERSION
+commit = True
+tag = False
+parse = (?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)
+serialize = 
+	{major}.{minor}.{patch}
+
+[bumpversion:file:pyproject.toml]
+search = version = "{current_version}"
+replace = version = "{new_version}"
+
+[bumpversion:file:modmaker/pyproject.toml]
+search = version = "{current_version}"
+replace = version = "{new_version}"
+EOF
+            fi
+            
+            # Bump patch version directly with sed
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$NF = $NF + 1;} 1' OFS=.)
+            sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
+            sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" modmaker/pyproject.toml
+            sed -i "s/current_version = $CURRENT_VERSION/current_version = $NEW_VERSION/" .bumpversion.cfg
             
             # Get new version
             NEW_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
             
             # Commit the version bump
-            git add pyproject.toml modmaker/pyproject.toml
+            git add pyproject.toml modmaker/pyproject.toml .bumpversion.cfg
             git commit -m "Bump version to $NEW_VERSION [skip ci]"
             git push origin develop
             
@@ -124,15 +147,38 @@ jobs:
           if [ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]; then
             echo "Version unchanged, bumping patch version..."
             
-            # Bump patch version
-            pip install bump2version
-            bump2version patch
+            # Create .bumpversion.cfg if it doesn't exist
+            if [ ! -f .bumpversion.cfg ]; then
+                cat > .bumpversion.cfg << 'EOF'
+[bumpversion]
+current_version = $CURRENT_VERSION
+commit = True
+tag = False
+parse = (?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)
+serialize = 
+	{major}.{minor}.{patch}
+
+[bumpversion:file:pyproject.toml]
+search = version = "{current_version}"
+replace = version = "{new_version}"
+
+[bumpversion:file:modmaker/pyproject.toml]
+search = version = "{current_version}"
+replace = version = "{new_version}"
+EOF
+            fi
+            
+            # Bump patch version directly with sed
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$NF = $NF + 1;} 1' OFS=.)
+            sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
+            sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" modmaker/pyproject.toml
+            sed -i "s/current_version = $CURRENT_VERSION/current_version = $NEW_VERSION/" .bumpversion.cfg
             
             # Get new version
             NEW_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
             
             # Commit the version bump
-            git add pyproject.toml modmaker/pyproject.toml
+            git add pyproject.toml modmaker/pyproject.toml .bumpversion.cfg
             git commit -m "Bump version to $NEW_VERSION [skip ci]"
             git push origin main
             
