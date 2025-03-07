@@ -75,8 +75,8 @@ jobs:
         id: bump_version
         run: |
           # Configure git
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "avattathil@gmail.com"
+          git config --local user.name "tonynv"
           
           # Bump patch version
           bump2version --current-version ${{ steps.current_version.outputs.version }} patch pyproject.toml modmaker/pyproject.toml
