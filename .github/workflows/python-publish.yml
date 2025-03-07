@@ -52,12 +52,12 @@ jobs:
           git config --local user.name "tonynv"
           
           # Get current version
-          CURRENT_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+          CURRENT_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           
           # Check if version was changed in this commit
           git checkout HEAD~1 pyproject.toml
-          PREVIOUS_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+          PREVIOUS_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
           git checkout HEAD pyproject.toml
           
           # If version hasn't changed, bump it
@@ -66,10 +66,10 @@ jobs:
             
             # Bump patch version
             pip install bump2version
-            bump2version --current-version $CURRENT_VERSION patch pyproject.toml modmaker/pyproject.toml
+            bump2version patch
             
             # Get new version
-            NEW_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+            NEW_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
             
             # Commit the version bump
             git add pyproject.toml modmaker/pyproject.toml
@@ -112,12 +112,12 @@ jobs:
           git config --local user.name "tonynv"
           
           # Get current version
-          CURRENT_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+          CURRENT_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           
           # Check if version was changed in this commit
           git checkout HEAD~1 pyproject.toml
-          PREVIOUS_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+          PREVIOUS_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
           git checkout HEAD pyproject.toml
           
           # If version hasn't changed, bump it
@@ -126,10 +126,10 @@ jobs:
             
             # Bump patch version
             pip install bump2version
-            bump2version --current-version $CURRENT_VERSION patch pyproject.toml modmaker/pyproject.toml
+            bump2version patch
             
             # Get new version
-            NEW_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+            NEW_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
             
             # Commit the version bump
             git add pyproject.toml modmaker/pyproject.toml
