@@ -34,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -42,12 +44,48 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install build twine
+      - name: Check and bump version if needed
+        id: check_and_bump_version
+        run: |
+          # Configure git
+          git config --local user.email "avattathil@gmail.com"
+          git config --local user.name "tonynv"
+          
+          # Get current version
+          CURRENT_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          # Check if version was changed in this commit
+          git checkout HEAD~1 pyproject.toml
+          PREVIOUS_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+          git checkout HEAD pyproject.toml
+          
+          # If version hasn't changed, bump it
+          if [ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]; then
+            echo "Version unchanged, bumping patch version..."
+            
+            # Bump patch version
+            pip install bump2version
+            bump2version --current-version $CURRENT_VERSION patch pyproject.toml modmaker/pyproject.toml
+            
+            # Get new version
+            NEW_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+            
+            # Commit the version bump
+            git add pyproject.toml modmaker/pyproject.toml
+            git commit -m "Bump version to $NEW_VERSION [skip ci]"
+            git push origin develop
+            
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Version already changed, using current version: $CURRENT_VERSION"
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          fi
       - name: Build package
         run: python -m build
       - name: Publish to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository-url: https://test.pypi.org/legacy/
 
   release-and-publish:
@@ -66,40 +104,54 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install build twine bump2version
-      - name: Extract current version
-        id: current_version
-        run: |
-          VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-      - name: Bump version
-        id: bump_version
+      - name: Check and bump version if needed
+        id: check_and_bump_version
         run: |
           # Configure git
           git config --local user.email "avattathil@gmail.com"
           git config --local user.name "tonynv"
           
-          # Bump patch version
-          bump2version --current-version ${{ steps.current_version.outputs.version }} patch pyproject.toml modmaker/pyproject.toml
+          # Get current version
+          CURRENT_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           
-          # Get new version
-          NEW_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          # Check if version was changed in this commit
+          git checkout HEAD~1 pyproject.toml
+          PREVIOUS_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+          git checkout HEAD pyproject.toml
           
-          # Commit the version bump
-          git add pyproject.toml modmaker/pyproject.toml
-          git commit -m "Bump version to $NEW_VERSION [skip ci]"
-          git push origin main
+          # If version hasn't changed, bump it
+          if [ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]; then
+            echo "Version unchanged, bumping patch version..."
+            
+            # Bump patch version
+            pip install bump2version
+            bump2version --current-version $CURRENT_VERSION patch pyproject.toml modmaker/pyproject.toml
+            
+            # Get new version
+            NEW_VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d'"' -f2)
+            
+            # Commit the version bump
+            git add pyproject.toml modmaker/pyproject.toml
+            git commit -m "Bump version to $NEW_VERSION [skip ci]"
+            git push origin main
+            
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Version already changed, using current version: $CURRENT_VERSION"
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          fi
       - name: Create Tag
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git tag -a v${{ steps.bump_version.outputs.version }} -m "Release v${{ steps.bump_version.outputs.version }}"
-          git push origin v${{ steps.bump_version.outputs.version }}
+          git tag -a v${{ steps.check_and_bump_version.outputs.version }} -m "Release v${{ steps.check_and_bump_version.outputs.version }}"
+          git push origin v${{ steps.check_and_bump_version.outputs.version }}
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.bump_version.outputs.version }}
-          name: Release v${{ steps.bump_version.outputs.version }}
+          tag_name: v${{ steps.check_and_bump_version.outputs.version }}
+          name: Release v${{ steps.check_and_bump_version.outputs.version }}
           generate_release_notes: true
       - name: Build package
         run: python -m build
