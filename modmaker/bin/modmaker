@@ -15,11 +15,12 @@ parent_dir = os.path.dirname(script_dir)
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-# First try to import from modmaker package
 try:
+    # Try importing from parent_dir
+    sys.path.insert(0, parent_dir)
     from modmaker._cli import main
 except ImportError:
-    # Then try importing directly from parent directory
+    # Try fall back to relative import
     try:
         from _cli import main
     except ImportError:
