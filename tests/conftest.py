@@ -6,8 +6,14 @@ template variables that shouldn't be directly executed.
 """
 
 import os
+import sys
 import pytest
 from pathlib import Path
+
+# Add the parent directory to sys.path to allow imports from the modmaker package
+project_root = str(Path(__file__).parent.parent)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 
 def pytest_ignore_collect(collection_path, config):

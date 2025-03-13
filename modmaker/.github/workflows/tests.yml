@@ -28,10 +28,15 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install -e .
     
+    - name: Set up test environment
+      run: |
+        chmod +x .github/setup_test_env.sh
+        ./.github/setup_test_env.sh
+        
     - name: Test with pytest
       run: |
         # Run all tests including the bin/modmaker entrypoint tests
-        pytest --cov=modmaker --cov-report=xml
+        PYTHONPATH=$(pwd):$PYTHONPATH python -m pytest -v --cov=modmaker --cov-report=xml
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

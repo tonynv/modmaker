@@ -25,10 +25,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install build pytest pytest-cov
           pip install -e .
+      - name: Set up test environment
+        run: |
+          chmod +x .github/setup_test_env.sh
+          ./.github/setup_test_env.sh
+          
       - name: Test with pytest
         run: |
           # Run all tests including those for bin/modmaker entrypoint
-          pytest
+          PYTHONPATH=$(pwd):$PYTHONPATH python -m pytest -v
 
   publish-test-pypi:
     needs: test
