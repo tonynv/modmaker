@@ -107,8 +107,8 @@ class Create:
                 "{{PYTHON_VERSION}}": "3.8"
             })
             
-            # Create a LICENSE file with Apache 2.0 license
-            self._create_license_file(project_dir)
+            # License file is created with the project
+            # No need to call self._create_license_file here
             
             return True
         except Exception as e:
