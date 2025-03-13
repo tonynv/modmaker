@@ -1,11 +1,12 @@
 """
 Pytest configuration for modmaker.
 
-This file handles the special case of template files that contain
-template variables that shouldn't be directly executed.
+This file handles special configurations for testing the modmaker package,
+including running all tests through the bin/modmaker entrypoint.
 """
 
 import os
+import sys
 import pytest
 from pathlib import Path
 
@@ -25,3 +26,20 @@ def pytest_ignore_collect(collection_path, config):
             except Exception:
                 pass
     return False
+
+
+@pytest.fixture(scope="session")
+def modmaker_bin_path():
+    """Return the path to the bin/modmaker entrypoint."""
+    # Find the project root from the test directory
+    project_root = Path(__file__).parent.parent
+    bin_path = project_root / "modmaker" / "bin" / "modmaker"
+    
+    if not bin_path.exists():
+        pytest.fail(f"Entrypoint script not found at {bin_path}")
+    
+    # Ensure the script is executable
+    if not os.access(bin_path, os.X_OK):
+        pytest.fail(f"Entrypoint script at {bin_path} is not executable")
+    
+    return bin_path
