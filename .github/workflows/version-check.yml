@@ -1,0 +1,51 @@
+name: Version Consistency Check
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Check version consistency
+        run: |
+          # Check versions in different files
+          PYPROJECT_VERSION=$(grep -m 1 'version = "' pyproject.toml | cut -d'"' -f2)
+          SETUP_CFG_VERSION=$(grep -m 1 'version = ' setup.cfg | cut -d' ' -f3)
+          INIT_VERSION=$(grep -m 1 '__version__' __init__.py | cut -d'"' -f2)
+          MODMAKER_INIT_VERSION=$(grep -m 1 '__version__' modmaker/__init__.py | cut -d'"' -f2)
+          BUMPVERSION_CFG_VERSION=$(grep -m 1 'current_version' .bumpversion.cfg | cut -d' ' -f3)
+          
+          echo "PyProject Version: $PYPROJECT_VERSION"
+          echo "Setup.cfg Version: $SETUP_CFG_VERSION"
+          echo "Init Version: $INIT_VERSION"
+          echo "Modmaker Init Version: $MODMAKER_INIT_VERSION"
+          echo "Bumpversion Config Version: $BUMPVERSION_CFG_VERSION"
+          
+          # Check PyPI version
+          PIP_VERSION=$(pip index versions modmaker 2>/dev/null | grep -m 1 'modmaker' | sed 's/.*(\([0-9.]*\)).*/\1/')
+          echo "Current PyPI Version: $PIP_VERSION"
+          
+          # Check if all versions match
+          if [ "$PYPROJECT_VERSION" != "$SETUP_CFG_VERSION" ] || \
+             [ "$PYPROJECT_VERSION" != "$INIT_VERSION" ] || \
+             [ "$PYPROJECT_VERSION" != "$MODMAKER_INIT_VERSION" ] || \
+             [ "$PYPROJECT_VERSION" != "$BUMPVERSION_CFG_VERSION" ]; then
+            echo "ERROR: Version mismatch detected!"
+            exit 1
+          else
+            echo "All version files are consistent with version $PYPROJECT_VERSION"
+          fi
+          
+          # Check if GitHub tag exists for current version
+          if ! git ls-remote --tags origin | grep -q "v$PYPROJECT_VERSION"; then
+            echo "Warning: No tag found for version v$PYPROJECT_VERSION"
+          fi

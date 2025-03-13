@@ -1,0 +1,11 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: check-versions
+        name: Check version consistency
+        description: Checks that version numbers are consistent across all files
+        entry: python scripts/check_versions.py
+        language: python
+        pass_filenames: false
+        always_run: true
+        stages: [commit, push]
