@@ -7,25 +7,29 @@ import sys
 import os
 import importlib.util
 
-# Find the package root directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(script_dir)
-
-# Add parent directory to Python path to find modules
-if parent_dir not in sys.path:
-    sys.path.insert(0, parent_dir)
-
 try:
-    # Try importing from parent_dir
-    sys.path.insert(0, parent_dir)
+    # Try importing modmaker package
     from modmaker._cli import main
 except ImportError:
-    # Try fall back to relative import
+    # Find the package root directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(script_dir)
+    
+    # Add parent directory to Python path to find modules
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
+    
     try:
-        from _cli import main
+        # Try importing from parent_dir
+        from modmaker._cli import main
     except ImportError:
-        print("Error: Could not import modmaker. Make sure it is installed correctly.")
-        sys.exit(1)
+        # Try another approach by going one level higher
+        sys.path.insert(0, os.path.dirname(parent_dir))
+        try:
+            from modmaker._cli import main
+        except ImportError:
+            print("Error: Could not import modmaker. Make sure it is installed correctly.")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

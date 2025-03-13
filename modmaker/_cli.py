@@ -10,11 +10,18 @@ import os
 import requests
 from importlib.metadata import version as get_distribution_version
 
-# Try relative imports for direct use
-from _cli_core import CliCore
-from _common_utils import exit_with_code
-from _logger import init_modmaker_cli_logger
-import _cli_modules
+# Try package imports
+try:
+    from modmaker._cli_core import CliCore
+    from modmaker._common_utils import exit_with_code
+    from modmaker._logger import init_modmaker_cli_logger
+    import modmaker._cli_modules as _cli_modules
+except ImportError:
+    # Try relative imports for direct use
+    from ._cli_core import CliCore
+    from ._common_utils import exit_with_code
+    from ._logger import init_modmaker_cli_logger
+    from . import _cli_modules
 
 LOG = init_modmaker_cli_logger(loglevel="ERROR")
 BANNER = " modmaker "
