@@ -1,5 +1,10 @@
 # modmaker
 
+[![Tests](https://github.com/tonynv/modmaker/actions/workflows/tests.yml/badge.svg)](https://github.com/tonynv/modmaker/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/tonynv/modmaker/branch/main/graph/badge.svg)](https://codecov.io/gh/tonynv/modmaker)
+[![PyPI version](https://badge.fury.io/py/modmaker.svg)](https://badge.fury.io/py/modmaker)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Python module to quickly generate project scaffolding with CLI capabilities.
 
 ## Installation
