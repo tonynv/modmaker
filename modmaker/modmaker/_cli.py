@@ -13,17 +13,11 @@ from importlib.metadata import version as get_distribution_version
 # Add parent directory to path for direct imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-try:
-    from _cli_core import CliCore
-    from _common_utils import exit_with_code
-    from _logger import init_modmaker_cli_logger
-    import _cli_modules
-except ImportError:
-    # Try relative imports for installed package
-    from modmaker._cli_core import CliCore
-    from modmaker._common_utils import exit_with_code
-    from modmaker._logger import init_modmaker_cli_logger
-    import modmaker._cli_modules as _cli_modules
+# Always use fully qualified imports
+from modmaker._cli_core import CliCore
+from modmaker._common_utils import exit_with_code
+from modmaker._logger import init_modmaker_cli_logger
+import modmaker._cli_modules as _cli_modules
 
 LOG = init_modmaker_cli_logger(loglevel="ERROR")
 BANNER = " modmaker "

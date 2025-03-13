@@ -10,17 +10,7 @@ import os
 import requests
 from importlib.metadata import version as get_distribution_version
 
-# Add current directory to path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
-
-# Add parent directory to path if this is part of a package
-parent_dir = os.path.dirname(current_dir)
-if os.path.exists(os.path.join(parent_dir, '__init__.py')):
-    if parent_dir not in sys.path:
-        sys.path.insert(0, parent_dir)
-
+# Try relative imports for direct use
 from _cli_core import CliCore
 from _common_utils import exit_with_code
 from _logger import init_modmaker_cli_logger

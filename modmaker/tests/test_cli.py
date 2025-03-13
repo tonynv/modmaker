@@ -7,8 +7,13 @@ from unittest.mock import patch, MagicMock
 import sys
 import argparse
 
-# Import module under test
-from modmaker._cli import (
+# Add the parent directory to the path so Python can find the modules
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Import module directly using relative imports
+from _cli import (
     _get_log_level,
     _print_tracebacks,
     _setup_logging,
@@ -55,20 +60,20 @@ class TestCli(unittest.TestCase):
         self.assertFalse(_print_tracebacks("INFO"))
         self.assertFalse(_print_tracebacks("ERROR"))
 
-    @patch("modmaker._cli.get_distribution_version")
+    @patch("_cli.get_distribution_version")
     def test_get_installed_version_success(self, mock_get_version):
         """Test successful version retrieval"""
         mock_get_version.return_value = "1.0.0"
         self.assertEqual(get_installed_version(), "1.0.0")
         mock_get_version.assert_called_once_with(NAME)
 
-    @patch("modmaker._cli.get_distribution_version")
+    @patch("_cli.get_distribution_version")
     def test_get_installed_version_error(self, mock_get_version):
         """Test version retrieval error handling"""
         mock_get_version.side_effect = Exception("Test error")
         self.assertEqual(get_installed_version(), "[local source] no pip module installed")
 
-    @patch("modmaker._cli.requests.get")
+    @patch("_cli.requests.get")
     def test_get_pip_version(self, mock_get):
         """Test PyPI version retrieval"""
         mock_response = MagicMock()
@@ -79,11 +84,11 @@ class TestCli(unittest.TestCase):
         self.assertEqual(get_pip_version(url), "1.0.0")
         mock_get.assert_called_once_with(url, timeout=5.0)
 
-    @patch("modmaker._cli.signal.signal")
-    @patch("modmaker._cli._setup_logging")
-    @patch("modmaker._cli._welcome")
-    @patch("modmaker._cli.get_installed_version")
-    @patch("modmaker._cli.CliCore")
+    @patch("_cli.signal.signal")
+    @patch("_cli._setup_logging")
+    @patch("_cli._welcome")
+    @patch("_cli.get_installed_version")
+    @patch("_cli.CliCore")
     def test_main_success(self, mock_cli_core, mock_get_version, mock_welcome, 
                           mock_setup_logging, mock_signal):
         """Test successful CLI execution"""
@@ -95,25 +100,25 @@ class TestCli(unittest.TestCase):
         
         # Save and restore sys.argv
         old_argv = sys.argv
-        sys.argv = ["modmaker", "command", "--option"]
+        sys.argv = ["modmaker", "create", "--option"]  # Use an actual command name
         
         try:
             # Execute
             exit_func = MagicMock()
-            main(exit_func=exit_func)
+            main(cli_core_class=mock_cli_core, exit_func=exit_func)
             
             # Verify
             mock_welcome.assert_called_once()
             mock_get_version.assert_called_once()
             mock_cli_core.assert_called_once()
-            mock_cli_instance.parse.assert_called_once_with(["command", "--option"])
+            mock_cli_instance.parse.assert_called_once_with(["create", "--option"])
             mock_cli_instance.run.assert_called_once()
             exit_func.assert_not_called()
         finally:
             # Restore
             sys.argv = old_argv
 
-    @patch("modmaker._cli._welcome")
+    @patch("_cli._welcome")
     def test_main_exception(self, mock_welcome):
         """Test CLI execution with exception"""
         # Setup
@@ -121,12 +126,14 @@ class TestCli(unittest.TestCase):
         
         # Save and restore sys.argv
         old_argv = sys.argv
-        sys.argv = ["modmaker", "command"]
+        sys.argv = ["modmaker", "create"]  # Use an actual command name
         
         try:
             # Execute
             exit_func = MagicMock()
-            main(exit_func=exit_func)
+            # Mock the CliCore class to prevent it from actually parsing arguments
+            mock_cli_core = MagicMock()
+            main(cli_core_class=mock_cli_core, exit_func=exit_func)
             
             # Verify
             exit_func.assert_called_once_with(1)
