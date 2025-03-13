@@ -22,10 +22,10 @@ dependencies = [
 ]
 
 [project.scripts]
-modmaker = "modmaker._cli:main"
+modmaker = "_cli:main"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["modmaker", "modmaker.*"]
+include = [".", "templates", "templates.*", "_cli_modules", "_cli_modules.*"]

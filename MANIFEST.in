@@ -1,1 +1,1 @@
-recursive-include modmaker/templates *
+recursive-include templates *

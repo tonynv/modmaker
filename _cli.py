@@ -9,9 +9,9 @@ import sys
 import requests
 from importlib.metadata import version as get_distribution_version
 
-from modmaker._cli_core import CliCore
-from modmaker._common_utils import exit_with_code
-from modmaker._logger import init_modmaker_cli_logger
+from _cli_core import CliCore
+from _common_utils import exit_with_code
+from _logger import init_modmaker_cli_logger
 
 from . import _cli_modules
 

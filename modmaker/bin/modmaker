@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+"""
+Direct entry point for modmaker
+"""
+
+import sys
+import os
+import importlib.util
+
+# Find the package root directory
+script_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(script_dir)
+
+# Add parent directory to Python path to find modules
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+# First try to import from modmaker package
+try:
+    from modmaker._cli import main
+except ImportError:
+    # Then try importing directly from parent directory
+    try:
+        from _cli import main
+    except ImportError:
+        print("Error: Could not import modmaker. Make sure it is installed correctly.")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

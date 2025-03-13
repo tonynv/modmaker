@@ -1,1 +1,5 @@
 recursive-include modmaker/templates *
+include _cli_core.py
+include _common_utils.py
+include _logger.py
+recursive-include _cli_modules *

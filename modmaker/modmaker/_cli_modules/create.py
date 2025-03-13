@@ -8,8 +8,7 @@ import sys
 import shutil
 from pathlib import Path
 
-from datetime import datetime
-from _common_utils import ensure_directory, copy_directory_contents, exit_with_code
+from modmaker._common_utils import ensure_directory, copy_directory_contents, exit_with_code
 
 LOG = logging.getLogger(__name__)
 
@@ -18,22 +17,24 @@ class Create:
     """
     Create a new Python project skeleton with CLI functionality
     """
+    
+    CLINAME = "create"
 
     def __init__(self):
         self.description = "Create a new Python project skeleton"
         LOG.info("Initializing project creation...")
 
-    def __call__(self, project_name: str):
+    def project(self, name: str):
         """
-        Create a new Python project with the given name
+        Create a new project
         
-        :param project_name: The name of the project to create
+        :param name: The name of the project to create
         """
-        LOG.info(f"Creating new project: {project_name}")
+        LOG.info(f"Creating new project: {name}")
         
         # Create project directory
         current_dir = os.getcwd()
-        project_dir = os.path.join(current_dir, project_name)
+        project_dir = os.path.join(current_dir, name)
         
         if os.path.exists(project_dir):
             LOG.error(f"Directory {project_dir} already exists")
@@ -50,17 +51,17 @@ class Create:
             exit_with_code(1, f"Template directory not found: {template_dir}")
         
         # Copy basic structure
-        success = self._copy_template(template_dir, project_dir, project_name)
+        success = self._copy_template(template_dir, project_dir, name)
         if not success:
             exit_with_code(1, "Failed to create project structure")
             
         # Create CLI structure
-        success = self._create_cli_structure(project_dir, project_name)
+        success = self._create_cli_structure(project_dir, name)
         if not success:
             exit_with_code(1, "Failed to create CLI structure")
             
-        LOG.info(f"Project {project_name} created successfully")
-        print(f"Project {project_name} created successfully")
+        LOG.info(f"Project {name} created successfully")
+        print(f"Project {name} created successfully")
         return True
         
     def _copy_template(self, template_dir, project_dir, project_name):
@@ -103,18 +104,24 @@ class Create:
                 "{{PROJECT_NAME}}": project_name,
                 "{{AUTHOR}}": "Your Name",
                 "{{EMAIL}}": "your.email@example.com",
-                "{{LICENSE}}": "Apache 2.0",
+                "{{LICENSE}}": "Apache-2.0",
                 "{{PYTHON_VERSION}}": "3.8"
             })
-            
-            # License file is created with the project
-            # No need to call self._create_license_file here
             
             return True
         except Exception as e:
             LOG.error(f"Error copying template: {str(e)}")
             return False
             
+    def _create_license_file(self, project_dir):
+        """
+        Create a license file with Apache 2.0 license
+        
+        Args:
+            project_dir (str): Project directory
+        """
+        pass  # License file is now handled through the template system
+    
     def _create_cli_structure(self, project_dir, project_name):
         """
         Create CLI structure files
@@ -127,6 +134,9 @@ class Create:
             bool: True if successful, False otherwise
         """
         try:
+            # Create license file
+            self._create_license_file(project_dir)
+            
             # Create _cli_modules directory
             cli_modules_dir = os.path.join(project_dir, project_name, "_cli_modules")
             ensure_directory(cli_modules_dir)

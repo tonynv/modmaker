@@ -21,9 +21,8 @@ dependencies = [
     "requests",
 ]
 
-[project.scripts]
-modmaker = "modmaker._cli:main"
+# Entry point is now handled by the scripts parameter in setup.py
 
 [tool.setuptools]
-packages = ["modmaker", "modmaker._cli_modules", "modmaker.templates"]
+packages = {find = {}}
 include-package-data = true
