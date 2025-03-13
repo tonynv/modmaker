@@ -191,8 +191,13 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git tag -a v${{ steps.check_and_bump_version.outputs.version }} -m "Release v${{ steps.check_and_bump_version.outputs.version }}"
-          git push origin v${{ steps.check_and_bump_version.outputs.version }}
+          # Check if tag already exists
+          if ! git rev-parse "v${{ steps.check_and_bump_version.outputs.version }}" >/dev/null 2>&1; then
+            git tag -a v${{ steps.check_and_bump_version.outputs.version }} -m "Release v${{ steps.check_and_bump_version.outputs.version }}"
+            git push origin v${{ steps.check_and_bump_version.outputs.version }}
+          else
+            echo "Tag v${{ steps.check_and_bump_version.outputs.version }} already exists, skipping tag creation"
+          fi
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
